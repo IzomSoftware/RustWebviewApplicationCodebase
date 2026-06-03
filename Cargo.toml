@@ -41,11 +41,13 @@ walkdir = "2.5.0"
 
 [dependencies]
 log = "0.4"
-tao = { version = "0.34.3", features = [] }
-wry = { version = "0.54.2", features = ["protocol"] }
+tao = { version = "0.35.3", features = [] }
+wry = { version = "0.55.1", features = ["protocol"] }
 thiserror = "2.0.18"
 serde_json = "1.0.145"
 tokio = { version = "1.49.0", features = ["full"] }
+phf = { version = "0.13.1", features = ["macros"] }
+infer = "0.19.0"
 
 # shoes = {git = "https://github.com/cfal/shoes", branch = "release-0.2.7"}
 
@@ -70,7 +72,7 @@ env_logger = "0.11.8"
 [profile.release]
 strip = true
 lto = "fat"
-opt-level = "z"
+opt-level = 3
 codegen-units = 1
 panic = "abort"
 debug = 0

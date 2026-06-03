@@ -7,7 +7,7 @@ pub fn init() {
     // my point.
     #[cfg(target_os = "android")]
     {
-        android_logger::init_once(
+        android_logger::init(
             android_logger::Config::default()
                 .with_max_level(log::LevelFilter::Debug)
                 .with_tag("rust-webview-application-codebase"),

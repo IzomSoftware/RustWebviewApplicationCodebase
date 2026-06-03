@@ -1,12 +1,12 @@
 use std::borrow::Cow;
-use std::thread;
+// use std::thread;
 use wry::http::header::CONTENT_TYPE;
 use wry::{WebViewBuilder, http::Response};
 
 use log::error;
 use log::info;
 
-use crate::assets_bundled_manager::ASSETS;
+use crate::app::assets_bundling::ASSETS;
 
 /// The Webview structure, containing a webview builder
 pub struct WebviewApp {
@@ -16,7 +16,6 @@ pub struct WebviewApp {
 /*
  * Cargo clippy suggests us to implement the
  * Default trait for some reason
- * so yeah
  */
 impl Default for WebviewApp {
     fn default() -> Self {
@@ -57,19 +56,20 @@ impl WebviewApp {
                         // adds refrences to a variable instead of cloning & copying
                         // yet another one.
 
-                        thread::spawn(move || {
+                        //thread::spawn(move || {
                             let path = request.uri().path();
                             info!("{path}");
 
                             // We unwrap the lock of variables here & then take refs
 
-                            let response: String = match path {
+                            #[allow(clippy::match_single_binding)]
+                            let response = match path {
                                 // Here, we fall back to our assets
                                 _ => {
-                                    let assets = &*ASSETS;
+                                    let assets = &ASSETS;
 
                                     match assets.get(path) {
-                                        Some(s) => s.into(),
+                                        Some(s) => s,
                                         _ => {
                                             error!("Unknown path: {path}");
 
@@ -78,9 +78,8 @@ impl WebviewApp {
                                                 // # Safety
                                                 //
                                                 // So you're telling me that we have our ASSETS set,
-                                                // But we don't have a fucking main page?
+                                                // But we don't have a main page?
                                                 .expect("Couldn't get the default page, missing assets?")
-                                                .into()
                                         }
                                     }
                                 }
@@ -93,22 +92,27 @@ impl WebviewApp {
                                         // Not sure why but sometimes some platforms are so
                                         // Paranoid about the response type, so we should
                                         // Specify our response type
-                                        match path {
-                                        p if p.ends_with(".html") => "text/html; charset=utf-8",
-                                        p if p.ends_with(".css") => "text/css; charset=utf-8",
-                                        p if p.ends_with(".js") => "application/javascript; charset=utf-8",
-                                        p if p.ends_with(".json") => "application/json; charset=utf-8",
-                                        p if p.ends_with(".svg") => "image/svg+xml",
-                                        p if p.ends_with(".png") => "image/png",
-                                        p if p.ends_with(".ico") => "image/x-icon",
-                                        p if p.ends_with(".wasm") => "application/wasm",
-                                        _ => "text/plain; charset=utf-8",
-                                    })
-                                    .body(Cow::<[u8]>::Owned(response.as_bytes().to_vec()))
+                                        if let Some(file_type) = infer::get(response) {
+                                            file_type.mime_type()
+                                        } else {
+                                            match path {
+                                            p if p.ends_with(".html") => "text/html; charset=utf-8",
+                                            p if p.ends_with(".css") => "text/css; charset=utf-8",
+                                            p if p.ends_with(".js") => "application/javascript; charset=utf-8",
+                                            p if p.ends_with(".json") => "application/json; charset=utf-8",
+                                            p if p.ends_with(".svg") => "image/svg+xml",
+                                            p if p.ends_with(".png") => "image/png",
+                                            p if p.ends_with(".ico") => "image/x-icon",
+                                            p if p.ends_with(".wasm") => "application/wasm",
+                                            _ => "text/plain; charset=utf-8",
+                                            }
+                                        }
+                                    )
+                                    .body(Cow::<[u8]>::Borrowed(*response))
                                     // Whatever at this point bro...
                                     .unwrap_or_else(|_e| Response::default())
                             );
-                        });
+                        //});
                     }
                 }),
         }

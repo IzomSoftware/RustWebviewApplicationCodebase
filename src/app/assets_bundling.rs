@@ -1,0 +1,1 @@
+include!("../../target/bundled.rs");
