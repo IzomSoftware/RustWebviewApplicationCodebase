@@ -1,10 +1,10 @@
 use std::rc::Rc;
 
+use crate::webview_manager::WebviewApp;
 use tao::event::{Event, WindowEvent};
 use tao::event_loop::{ControlFlow, EventLoop};
 use tao::window::{Window, WindowBuilder};
 use wry::WebView;
-use crate::webview_manager::WebviewApp;
 
 /// The Application structure, containing:
 ///

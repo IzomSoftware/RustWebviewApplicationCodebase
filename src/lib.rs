@@ -1,11 +1,11 @@
 // Set this part of source code to
 // be compiled ONLY for Android and IOS.
 #![cfg(any(target_os = "android", target_os = "ios"))]
+pub mod assets_bundled_manager;
 pub mod entry_point;
 pub mod logging_initializer;
-pub mod assets_bundled_manager;
-pub mod window_manager;
 pub mod webview_manager;
+pub mod window_manager;
 
 /// Panic handler
 fn stop_unwind<F: FnOnce() -> T, T>(f: F) -> T {

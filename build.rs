@@ -1,23 +1,25 @@
-use std::fs;
-use std::path::Path;
+// use std::fs;
+// use std::path::Path;
 // use std::process::Command;
 
 fn main() {
-    let out = Path::new("target").join("build-rerun-trigger");
-    fs::create_dir_all(out.parent().unwrap()).unwrap();
-    fs::write(
-        &out,
-        format!(
-            "{}",
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
-        ),
-    )
-    .unwrap();
+    // let out = Path::new("target").join("build-rerun-trigger");
+    // fs::create_dir_all(out.parent().unwrap()).unwrap();
+    // fs::write(
+    //     &out,
+    //     format!(
+    //         "{}",
+    //         std::time::SystemTime::now()
+    //             .duration_since(std::time::UNIX_EPOCH)
+    //             .unwrap()
+    //             .as_nanos()
+    //     ),
+    // )
+    // .unwrap();
 
-    println!("cargo:rerun-if-changed={}", out.display());
+    // println!("cargo:rerun-if-changed={}", out.display());
+
+    println!("cargo:rerun-if-changed=assets_bundled/");
 
     // Uncomment to build tailwindcss
     /*execute_command(
@@ -111,6 +113,6 @@ pub static ASSETS: LazyLock<HashMap<String, String>> =
             &format!("const ASSETS_JSON: &str =  r#\"{}\"#;", json.as_str()),
         );
 
-        write("src/assets_bundled_manager.rs", code).unwrap();
+        write("target/assets_bundled_manager.rs", code).unwrap();
     }
 }

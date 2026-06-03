@@ -41,7 +41,7 @@ impl WebviewApp {
                 // Turning off the devtools isn't nercessary
                 // But maybe would prevent user from accessing
                 // the frontend somehow.
-                .with_devtools(false)
+                .with_devtools(cfg!(debug_assertions))
                 // We're not building a browser are we?
                 .with_back_forward_navigation_gestures(false)
                 // The base URL that asynchronous_custom_protocol would be listening on
@@ -96,7 +96,12 @@ impl WebviewApp {
                                         match path {
                                         p if p.ends_with(".html") => "text/html; charset=utf-8",
                                         p if p.ends_with(".css") => "text/css; charset=utf-8",
-                                        p if p.ends_with(".html") => "application/javascript; charset=utf-8",
+                                        p if p.ends_with(".js") => "application/javascript; charset=utf-8",
+                                        p if p.ends_with(".json") => "application/json; charset=utf-8",
+                                        p if p.ends_with(".svg") => "image/svg+xml",
+                                        p if p.ends_with(".png") => "image/png",
+                                        p if p.ends_with(".ico") => "image/x-icon",
+                                        p if p.ends_with(".wasm") => "application/wasm",
                                         _ => "text/plain; charset=utf-8",
                                     })
                                     .body(Cow::<[u8]>::Owned(response.as_bytes().to_vec()))
