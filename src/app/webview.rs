@@ -23,6 +23,7 @@ impl Default for WebviewApp {
     }
 }
 
+#[allow(clippy::match_single_binding)]
 pub fn get_response(path: String) -> &'static [u8] {
         match path {
             // Here, we fall back to our assets
