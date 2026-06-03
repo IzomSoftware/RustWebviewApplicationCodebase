@@ -1,0 +1,19 @@
+# Rust
+target/
+**/*.rs.bk
+Cargo.lock
+
+# cargo-mobile2
+.cargo/
+
+# macOS
+.DS_Store
+
+# jetbrains
+.idea/
+
+# VS code
+.vscode/
+
+# Debug
+test_run/

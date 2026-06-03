@@ -1,0 +1,76 @@
+[package]
+name = "rust-webview-application-codebase"
+version = "0.1.0"
+authors = ["realstresser <hello.ebrahimi.rza@gmail.com>"]
+edition = "2024"
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "rust-webview-application-codebase"
+path = "src/bin.rs"
+
+[package.metadata.cargo-android]
+app-activity-name = "net.izom.rust_webview_app_codebase.MainActivity"
+app-dependencies = [
+    "androidx.webkit:webkit:1.6.1",
+    "androidx.appcompat:appcompat:1.6.1",
+    "com.google.android.material:material:1.8.0",
+]
+project-dependencies = [ "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21" ]
+app-plugins = [ "org.jetbrains.kotlin.android" ]
+app-permissions = [ "android.permission.INTERNET" ]
+app-theme-parent = "Theme.MaterialComponents.DayNight.DarkActionBar"
+vulkan-validation = false
+
+[package.metadata.cargo-android.env-vars]
+WRY_ANDROID_PACKAGE = "net.izom.rust_webview_app_codebase"
+WRY_ANDROID_LIBRARY = "rust_application_codebase"
+WRY_ANDROID_KOTLIN_FILES_OUT_DIR = "<android-project-dir>/app/src/main/kotlin/net/izom/rust_webview_app_codebase"
+
+[package.metadata.cargo-apple.ios]
+frameworks = [ "WebKit" ]
+
+
+############### Global Dependecies ###############
+[build-dependencies]
+serde_json = "1.0.145"
+walkdir = "2.5.0"
+
+[dependencies]
+log = "0.4"
+tao = { version = "0.34.3", features = [] }
+wry = { version = "0.54.2", features = ["protocol"] }
+thiserror = "2.0.18"
+serde_json = "1.0.145"
+tokio = { version = "1.49.0", features = ["full"] }
+
+# shoes = {git = "https://github.com/cfal/shoes", branch = "release-0.2.7"}
+
+############## Linux Dependecies #################
+gdk = { git = "https://github.com/gtk-rs/gtk4-rs.git", package = "gdk4" }
+
+############### Android Dependecies ###############
+[target.'cfg(target_os = "android")'.dependencies]
+android_logger = "0.15.1"
+jni = "0.22.1"
+paste = "1.0"
+ndk-context = "0.1.1"
+
+############### IOS Dependecies ###############
+[target.'cfg(target_os = "ios")'.dependencies]
+core-foundation = "0.10"
+
+############### Other than Android Dependecies ###############
+[target.'cfg(not(target_os = "android"))'.dependencies]
+env_logger = "0.11.8"
+
+[profile.release]
+strip = true
+lto = "fat"
+opt-level = "z"
+codegen-units = 1
+panic = "abort"
+debug = 0
