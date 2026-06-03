@@ -23,6 +23,52 @@ impl Default for WebviewApp {
     }
 }
 
+pub fn get_response(path: String) -> &'static [u8] {
+        match path {
+            // Here, we fall back to our assets
+            _ => {
+                let assets = &ASSETS;
+
+                match assets.get(&path) {
+                    Some(s) => s,
+                    _ => {
+                        error!("Unknown path: {path}");
+
+                        assets
+                            .get("/assets_bundled/test.txt")
+                            // # Safety
+                            //
+                            // So you're telling me that we have our ASSETS set,
+                            // But we don't have a main page?
+                            .expect("Couldn't get the default page, missing assets?")
+                    }
+                }
+            }
+        }
+    }
+fn build_response(path: &str) -> Response<Cow<'static, [u8]>> {
+    let content = get_response(path.into());
+
+    let mime_type = infer::get(content)
+        .map(|file_type| file_type.mime_type())
+        .unwrap_or_else(|| match path {
+            p if p.ends_with(".html") => "text/html; charset=utf-8",
+            p if p.ends_with(".css") => "text/css; charset=utf-8",
+            p if p.ends_with(".js") => "application/javascript; charset=utf-8",
+            p if p.ends_with(".json") => "application/json; charset=utf-8",
+            p if p.ends_with(".svg") => "image/svg+xml",
+            p if p.ends_with(".png") => "image/png",
+            p if p.ends_with(".ico") => "image/x-icon",
+            p if p.ends_with(".wasm") => "application/wasm",
+            _ => "text/plain; charset=utf-8",
+        });
+
+    Response::builder()
+        .header(CONTENT_TYPE, mime_type)
+        .body(Cow::Borrowed(content))
+        .unwrap_or_else(|_e| Response::default())
+}
+
 /*
  * Implementation of the WebviewApp structure.
  * Contains the new() function.
@@ -47,8 +93,7 @@ impl WebviewApp {
                 // TODO: this may need tweaks on Android, maybe it should be:
                 // http://app.client/assets_bundled/
                 .with_url("app://client/assets_bundled/test.txt")
-                .with_asynchronous_custom_protocol("app".into(),
-                {
+                .with_asynchronous_custom_protocol("app".into(), {
                     move |_id, request, responder| {
                         // We can't move twice, so we clone variables before moving it twice
                         // This has no performance cost for us because we're using the
@@ -57,61 +102,15 @@ impl WebviewApp {
                         // yet another one.
 
                         //thread::spawn(move || {
-                            let path = request.uri().path();
-                            info!("{path}");
+                        let path = request.uri().path().to_string();
+                        info!("{path}");
 
-                            // We unwrap the lock of variables here & then take refs
+                        // We unwrap the lock of variables here & then take refs
 
-                            #[allow(clippy::match_single_binding)]
-                            let response = match path {
-                                // Here, we fall back to our assets
-                                _ => {
-                                    let assets = &ASSETS;
-
-                                    match assets.get(path) {
-                                        Some(s) => s,
-                                        _ => {
-                                            error!("Unknown path: {path}");
-
-                                            assets
-                                                .get("/assets_bundled/test.txt")
-                                                // # Safety
-                                                //
-                                                // So you're telling me that we have our ASSETS set,
-                                                // But we don't have a main page?
-                                                .expect("Couldn't get the default page, missing assets?")
-                                        }
-                                    }
-                                }
-                            };
-
-                            // Here we build the actual response
-                            responder.respond(
-                                Response::builder()
-                                    .header(CONTENT_TYPE,
-                                        // Not sure why but sometimes some platforms are so
-                                        // Paranoid about the response type, so we should
-                                        // Specify our response type
-                                        if let Some(file_type) = infer::get(response) {
-                                            file_type.mime_type()
-                                        } else {
-                                            match path {
-                                            p if p.ends_with(".html") => "text/html; charset=utf-8",
-                                            p if p.ends_with(".css") => "text/css; charset=utf-8",
-                                            p if p.ends_with(".js") => "application/javascript; charset=utf-8",
-                                            p if p.ends_with(".json") => "application/json; charset=utf-8",
-                                            p if p.ends_with(".svg") => "image/svg+xml",
-                                            p if p.ends_with(".png") => "image/png",
-                                            p if p.ends_with(".ico") => "image/x-icon",
-                                            p if p.ends_with(".wasm") => "application/wasm",
-                                            _ => "text/plain; charset=utf-8",
-                                            }
-                                        }
-                                    )
-                                    .body(Cow::<[u8]>::Borrowed(*response))
-                                    // Whatever at this point bro...
-                                    .unwrap_or_else(|_e| Response::default())
-                            );
+                        // Here we build the actual response
+                        responder.respond(
+                            build_response(&path)
+                        );
                         //});
                     }
                 }),

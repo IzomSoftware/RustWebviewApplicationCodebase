@@ -1,7 +1,7 @@
-
 mod windows;
 mod linux;
 mod android;
+
 #[cfg(target_os = "windows")]
 pub use windows::WindowsPlatform as CurrentPlatform;
 
