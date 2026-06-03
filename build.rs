@@ -1,6 +1,6 @@
 use std::fs;
 use std::path::Path;
-use std::process::Command;
+// use std::process::Command;
 
 fn main() {
     let out = Path::new("target").join("build-rerun-trigger");
@@ -40,15 +40,15 @@ fn main() {
     assets::include_asset();
 }
 
-fn execute_command(command: String, args: Vec<String>) {
-    let mut cmd = Command::new(command);
+// fn execute_command(command: String, args: Vec<String>) {
+//     let mut cmd = Command::new(command);
 
-    for arg in args {
-        cmd.arg(arg);
-    }
+//     for arg in args {
+//         cmd.arg(arg);
+//     }
 
-    cmd.spawn().unwrap().wait().unwrap();
-}
+//     cmd.spawn().unwrap().wait().unwrap();
+// }
 
 mod assets {
     use std::collections::HashMap;

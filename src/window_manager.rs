@@ -106,9 +106,9 @@ impl Application {
     }
 
     pub fn shutdown(&self, control_flow: &mut ControlFlow) {
-        *control_flow = ControlFlow::Exit;
-
         self.webview.as_ref().take();
+
+        *control_flow = ControlFlow::Exit;
     }
 }
 
