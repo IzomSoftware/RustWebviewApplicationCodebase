@@ -3,7 +3,7 @@ use std::sync::LazyLock;
 use tao::event_loop::EventLoop;
 use tokio::runtime::Runtime;
 
-use crate::{app, platform::{self, CurrentPlatform}};
+use crate::{platform::{self, CurrentPlatform}};
 
 // The Tokio runtime. this runtime could be initialized only once and that's the reason we're wrapping this
 pub static RUNTIME: LazyLock<Runtime> = LazyLock::new(|| {
@@ -17,16 +17,6 @@ pub static RUNTIME: LazyLock<Runtime> = LazyLock::new(|| {
 
 /// The entry point
 pub fn init() {
-    // PLATFORM SPECIFIC:
-    // Use x11 backend EVEN IF RUNNING UNDER WAYLAND
-    // This is because there would be less bugs &
-    // compatibility issues
-    // #[cfg(target_os = "linux")]
-    // unsafe {
-    //     std::env::set_var("GDK_BACKEND", "x11");
-    // }
-
-    app::logging::init();
     let platform = platform::Platform::new(CurrentPlatform);
     let app = platform.build(EventLoop::new());
 
