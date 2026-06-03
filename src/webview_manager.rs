@@ -66,13 +66,7 @@ impl WebviewApp {
                             let response: String = match path {
                                 // Here, we fall back to our assets
                                 _ => {
-                                    let assets = ASSETS.get()
-                                        // # Safety
-                                        //
-                                        // I mean why should we give a fuck if app crashes at this point
-                                        // if there's no ASSETS variable I wonder how the fuck
-                                        // the application got initialized even at this point bro
-                                        .expect("webview_manager.rs: Couldn't get ASSETS");
+                                    let assets = &*ASSETS;
 
                                     match assets.get(path) {
                                         Some(s) => s.into(),
@@ -85,7 +79,7 @@ impl WebviewApp {
                                                 //
                                                 // So you're telling me that we have our ASSETS set,
                                                 // But we don't have a fucking main page?
-                                                .expect("webview_manager.rs: Couldn't get the default page, missing assets?")
+                                                .expect("Couldn't get the default page, missing assets?")
                                                 .into()
                                         }
                                     }

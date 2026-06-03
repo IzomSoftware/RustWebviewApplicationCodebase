@@ -41,7 +41,7 @@ impl Application {
             //
             // Why should we give a fuck anyway
             // If our window couldn't be drew?
-            .expect("window_manager.rs: Couldn't create the window");
+            .expect("Couldn't create the window");
 
         window.set_title("Rust Webview Application Codebase");
 
@@ -60,7 +60,7 @@ impl Application {
                 //
                 // Why should we give a fuck anyway
                 // If our window couldn't be drew?
-                .expect("window_manager.rs: Cannot use default_vbox in this environment"),
+                .expect("Cannot use default_vbox in this environment"),
         );
 
         // PLATFORM SPECIFIC:
@@ -76,7 +76,7 @@ impl Application {
                     //
                     // Why should we give a fuck anyway
                     // If our window couldn't be drew?
-                    .expect("window_manager.rs: Couldn't build the webview"),
+                    .expect("Couldn't build the webview"),
             ),
         }
     }

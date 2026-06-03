@@ -1,6 +1,6 @@
 use std::sync::LazyLock;
 
-use crate::{assets_bundled_manager, logging_initializer, window_manager};
+use crate::{logging_initializer, window_manager};
 use tokio::runtime::Runtime;
 
 // The Tokio runtime. this runtime could be initialized only once and that's the reason we're wrapping this
@@ -13,7 +13,7 @@ pub static RUNTIME: LazyLock<Runtime> = LazyLock::new(|| {
         .expect("Couldn't initialize the tokio runtime")
 });
 
-/// The entry point of Element VPN
+/// The entry point
 pub fn init() {
     // PLATFORM SPECIFIC:
     // Use x11 backend EVEN IF RUNNING UNDER WAYLAND
@@ -25,6 +25,5 @@ pub fn init() {
     }
 
     logging_initializer::init();
-    assets_bundled_manager::init();
     window_manager::init();
 }
