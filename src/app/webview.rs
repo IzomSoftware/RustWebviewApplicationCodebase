@@ -23,50 +23,60 @@ impl Default for WebviewApp {
     }
 }
 
+pub fn get_asset(path: &str) -> Option<Vec<u8>> {
+    let assets = &ASSETS;
+    let asset = assets.get(&path);
+    match asset {
+        Some(result) => Some((*result).into()),
+        None => None,
+    }
+}
+
 #[allow(clippy::match_single_binding)]
-pub fn get_response(path: String) -> &'static [u8] {
-        match path {
-            // Here, we fall back to our assets
-            _ => {
-                let assets = &ASSETS;
+pub fn get_response(path: String) -> Vec<u8> {
+    match path {
+        // Here, we fall back to our assets
+        _ => {
+            match get_asset(&path) {
+                Some(s) => s,
+                _ => {
+                    error!("Unknown path: {path}");
 
-                match assets.get(&path) {
-                    Some(s) => s,
-                    _ => {
-                        error!("Unknown path: {path}");
-
-                        assets
-                            .get("/assets_bundled/test.txt")
-                            // # Safety
-                            //
-                            // So you're telling me that we have our ASSETS set,
-                            // But we don't have a main page?
-                            .expect("Couldn't get the default page, missing assets?")
-                    }
+                    get_asset("/assets_bundled/index.html")
+                        // # Safety
+                        //
+                        // So you're telling me that we have our ASSETS set,
+                        // But we don't have a main page?
+                        .expect(
+                            "webview_manager.rs: Couldn't get the default page, missing assets?",
+                        )
                 }
             }
         }
     }
+}
+
 fn build_response(path: &str) -> Response<Cow<'static, [u8]>> {
     let content = get_response(path.into());
+    let bytes = content.as_ref();
 
-    let mime_type = infer::get(content)
-        .map(|file_type| file_type.mime_type())
-        .unwrap_or_else(|| match path {
-            p if p.ends_with(".html") => "text/html; charset=utf-8",
-            p if p.ends_with(".css") => "text/css; charset=utf-8",
-            p if p.ends_with(".js") => "application/javascript; charset=utf-8",
-            p if p.ends_with(".json") => "application/json; charset=utf-8",
-            p if p.ends_with(".svg") => "image/svg+xml",
-            p if p.ends_with(".png") => "image/png",
-            p if p.ends_with(".ico") => "image/x-icon",
-            p if p.ends_with(".wasm") => "application/wasm",
-            _ => "text/plain; charset=utf-8",
-        });
+    let mime_type = match path.rsplit_once('.') {
+        Some((_, "html")) => "text/html; charset=utf-8",
+        Some((_, "css")) => "text/css; charset=utf-8",
+        Some((_, "js")) => "application/javascript; charset=utf-8",
+        Some((_, "json")) => "application/json; charset=utf-8",
+        Some((_, "svg")) => "image/svg+xml",
+        Some((_, "png")) => "image/png",
+        Some((_, "ico")) => "image/x-icon",
+        Some((_, "wasm")) => "application/wasm",
+        _ => infer::get(bytes)
+            .map(|file_type: infer::Type| file_type.mime_type())
+            .unwrap_or("text/plain; charset=utf-8"),
+    };
 
     Response::builder()
         .header(CONTENT_TYPE, mime_type)
-        .body(Cow::Borrowed(content))
+        .body(Cow::Owned(content))
         .unwrap_or_else(|_e| Response::default())
 }
 
@@ -109,9 +119,7 @@ impl WebviewApp {
                         // We unwrap the lock of variables here & then take refs
 
                         // Here we build the actual response
-                        responder.respond(
-                            build_response(&path)
-                        );
+                        responder.respond(build_response(&path));
                         //});
                     }
                 }),
