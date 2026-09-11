@@ -6,7 +6,7 @@ use tao::{
 };
 use wry::{WebView, WebViewBuilder, WebViewBuilderExtUnix};
 
-use crate::platform::PlatformBuilder;
+use crate::platform::{DesktopSizeBuilder, PlatformBuilder};
 
 pub struct LinuxPlatform;
 
@@ -22,7 +22,9 @@ impl PlatformBuilder for LinuxPlatform {
         }
     }
     fn setup_window(&self) -> WindowBuilder {
-        WindowBuilder::new().with_default_vbox(true)
+        WindowBuilder::new()
+            .with_desktop_default_size()
+            .with_default_vbox(true)
     }
     fn build_webview(&self, builder: WebViewBuilder<'_>, window: &Window) -> WebView {
         builder.build_gtk(window.default_vbox().unwrap()).unwrap()

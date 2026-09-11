@@ -41,8 +41,6 @@ impl<T: PlatformBuilder> Platform<T> {
     fn build_window(&self, event_loop: &EventLoop<()>) -> Window {
         self.setup_window()
             .with_title("Rust Webview Application Codebase")
-            .with_inner_size(LogicalSize::new(1024, 768))
-            .with_min_inner_size(LogicalSize::new(320, 240))
             .with_theme(Some(Theme::Dark))
             .build(event_loop)
             .unwrap()
@@ -66,10 +64,25 @@ impl<T: PlatformBuilder> Platform<T> {
 
 pub trait PlatformBuilder {
     fn setup(&self) {}
+    fn with_desktop_default_size(&self) -> WindowBuilder {
+        self.setup_window()
+            .with_inner_size(LogicalSize::new(1024, 768))
+            .with_min_inner_size(LogicalSize::new(320, 240))
+    }
     fn setup_window(&self) -> WindowBuilder {
         WindowBuilder::new()
     }
     fn build_webview(&self, builder: WebViewBuilder<'_>, window: &Window) -> WebView {
         builder.build(window).unwrap()
+    }
+}
+pub trait DesktopSizeBuilder {
+    fn with_desktop_default_size(self) -> WindowBuilder;
+}
+
+impl DesktopSizeBuilder for WindowBuilder {
+    fn with_desktop_default_size(self) -> WindowBuilder {
+        self.with_inner_size(LogicalSize::new(1024, 768))
+            .with_min_inner_size(LogicalSize::new(320, 240))
     }
 }
