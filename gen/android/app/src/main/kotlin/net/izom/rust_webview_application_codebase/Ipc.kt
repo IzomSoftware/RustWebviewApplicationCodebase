@@ -10,23 +10,16 @@ package net.izom.rust_webview_application_codebase
 
 import android.webkit.*
 
-class Ipc(val webViewClient: RustWebViewClient) {
+class Ipc(val webView: RustWebView, val webViewClient: RustWebViewClient) {
     @JavascriptInterface
     fun postMessage(message: String?) {
-        message?.let { m ->
-            // we're not using WebView::getUrl() here because it needs to be executed on the main
-            // thread
+        message?.let {m ->
+            // we're not using WebView::getUrl() here because it needs to be executed on the main thread
             // and it would slow down the Ipc
             // so instead we track the current URL on the webview client
-            this.ipc(webViewClient.currentUrl, m)
+            Rust.ipc(webView.id, webViewClient.currentUrl, m)
         }
     }
 
-    companion object {
-        init {
-            System.loadLibrary("rust_webview_application_codebase")
-        }
-    }
-
-    private external fun ipc(url: String, message: String)
+    
 }

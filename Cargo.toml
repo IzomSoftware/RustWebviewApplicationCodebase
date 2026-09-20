@@ -28,7 +28,6 @@ vulkan-validation = false
 [package.metadata.cargo-apple.ios]
 frameworks = [ "WebKit" ]
 
-
 ############### Global Dependecies ###############
 [build-dependencies]
 serde_json = "1.0.145"

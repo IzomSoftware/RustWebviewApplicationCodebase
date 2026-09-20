@@ -37,7 +37,7 @@ pub extern "C" fn start_app() {
         tao::android_binding!(
             net_izom,
             rust_webview_application_codebase,
-            WryActivity,
+            Rust,
             wry::android_setup, // pass the wry::android_setup function to tao which will invoke when the event loop is created
             _start_app,
             ::tao

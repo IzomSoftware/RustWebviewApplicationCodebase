@@ -9,15 +9,14 @@
 package net.izom.rust_webview_application_codebase
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.webkit.*
+import android.content.Context
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import kotlin.collections.Map
 
 @SuppressLint("RestrictedApi")
-class RustWebView(context: Context, val initScripts: Array<String>, val id: String) :
-    WebView(context) {
+class RustWebView(context: Context, val initScripts: Array<String>, val id: String): WebView(context) {
     val isDocumentStartScriptEnabled: Boolean
 
     init {
@@ -31,39 +30,51 @@ class RustWebView(context: Context, val initScripts: Array<String>, val id: Stri
         if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
             isDocumentStartScriptEnabled = true
             for (script in initScripts) {
-                WebViewCompat.addDocumentStartJavaScript(this, script, setOf("*"))
+                WebViewCompat.addDocumentStartJavaScript(this, script, setOf("*"));
             }
         } else {
-            isDocumentStartScriptEnabled = false
+          isDocumentStartScriptEnabled = false
         }
+
+        
     }
 
     fun loadUrlMainThread(url: String) {
-        post { loadUrl(url) }
+        post {
+          loadUrl(url)
+        }
     }
 
     fun loadUrlMainThread(url: String, additionalHttpHeaders: Map<String, String>) {
-        post { loadUrl(url, additionalHttpHeaders) }
+        post {
+          loadUrl(url, additionalHttpHeaders)
+        }
     }
 
     override fun loadUrl(url: String) {
-        if (!shouldOverride(url)) {
-            super.loadUrl(url)
+        if (!Rust.shouldOverride(id, url)) {
+            super.loadUrl(url);
         }
     }
 
     override fun loadUrl(url: String, additionalHttpHeaders: Map<String, String>) {
-        if (!shouldOverride(url)) {
-            super.loadUrl(url, additionalHttpHeaders)
+        if (!Rust.shouldOverride(id, url)) {
+            super.loadUrl(url, additionalHttpHeaders);
         }
     }
 
     fun loadHTMLMainThread(html: String) {
-        post { super.loadData(html, "text/html", null) }
+        post {
+          super.loadData(html, "text/html", null)
+        }
     }
 
     fun evalScript(id: Int, script: String) {
-        post { super.evaluateJavascript(script) { result -> onEval(id, result) } }
+        post {
+            super.evaluateJavascript(script) { result ->
+                Rust.onEval(this.id, id, result)
+            }
+        }
     }
 
     fun clearAllBrowsingData() {
@@ -78,17 +89,10 @@ class RustWebView(context: Context, val initScripts: Array<String>, val id: Stri
         }
     }
 
-    fun setAutoPlay(enable: Boolean) {
-        val settings = super.getSettings()
-        settings.mediaPlaybackRequiresUserGesture = !enable
+    fun getCookies(url: String): String {
+        val cookieManager = CookieManager.getInstance()
+        return cookieManager.getCookie(url)
     }
 
-    fun setUserAgent(ua: String) {
-        val settings = super.getSettings()
-        settings.userAgentString = ua
-    }
-
-    private external fun shouldOverride(url: String): Boolean
-
-    private external fun onEval(id: Int, result: String)
+    
 }
