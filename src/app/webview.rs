@@ -42,7 +42,7 @@ pub fn get_response(path: String) -> Vec<u8> {
                 _ => {
                     error!("Unknown path: {path}");
 
-                    get_asset("/assets_bundled/index.html")
+                    get_asset("/assets_bundled/test.txt")
                         // # Safety
                         //
                         // So you're telling me that we have our ASSETS set,

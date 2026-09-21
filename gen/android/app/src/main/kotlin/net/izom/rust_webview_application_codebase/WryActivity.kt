@@ -114,8 +114,8 @@ abstract class WryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         id = savedInstanceState?.getInt(ACTIVITY_ID_KEY) ?: intent.extras?.getInt(ACTIVITY_ID_KEY) ?: hashCode()
-        ProcessLifecycleOwner.get().lifecycle.addObserver(WryLifecycleObserver)
         Rust.onActivityCreate(this)
+        ProcessLifecycleOwner.get().lifecycle.addObserver(WryLifecycleObserver)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

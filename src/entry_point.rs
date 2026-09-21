@@ -17,6 +17,7 @@ pub static RUNTIME: LazyLock<Runtime> = LazyLock::new(|| {
 
 /// The entry point
 pub fn init() {
+    
     let platform = platform::Platform::new(CurrentPlatform);
     let app = platform.build(EventLoop::new());
 
