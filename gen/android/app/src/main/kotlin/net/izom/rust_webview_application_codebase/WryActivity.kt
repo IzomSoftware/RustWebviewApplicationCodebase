@@ -11,7 +11,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.webkit.WebView
-import android.view.KeyEvent
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -53,25 +52,26 @@ abstract class WryActivity : AppCompatActivity() {
     var id: Int = 0
     open val handleBackNavigation: Boolean = true
 
-    open fun onWebViewCreate(webView: WebView) { }
+    open fun onWebViewCreate(webView: WebView) {}
 
     fun setWebView(webView: RustWebView) {
         mWebView = webView
 
         if (handleBackNavigation) {
-            val callback = object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (this@WryActivity::mWebView.isInitialized) {
-                        if (this@WryActivity.mWebView.canGoBack()) {
-                            this@WryActivity.mWebView.goBack()
-                        } else {
-                            this.isEnabled = false
-                            this@WryActivity.onBackPressed()
-                            this.isEnabled = true
+            val callback =
+                object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        if (this@WryActivity::mWebView.isInitialized) {
+                            if (this@WryActivity.mWebView.canGoBack()) {
+                                this@WryActivity.mWebView.goBack()
+                            } else {
+                                this.isEnabled = false
+                                this@WryActivity.onBackPressed()
+                                this.isEnabled = true
+                            }
                         }
                     }
                 }
-            }
             onBackPressedDispatcher.addCallback(this, callback)
         }
 
@@ -89,11 +89,10 @@ abstract class WryActivity : AppCompatActivity() {
             // Otherwise manually check WebView versions
             var webViewPackage = "com.google.android.webview"
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-              webViewPackage = "com.android.chrome"
+                webViewPackage = "com.android.chrome"
             }
             try {
-                @Suppress("DEPRECATION")
-                val info = packageManager.getPackageInfo(webViewPackage, 0)
+                @Suppress("DEPRECATION") val info = packageManager.getPackageInfo(webViewPackage, 0)
                 return info.versionName.toString()
             } catch (ex: Exception) {
                 Logger.warn("Unable to get package info for '$webViewPackage'$ex")
@@ -113,7 +112,10 @@ abstract class WryActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        id = savedInstanceState?.getInt(ACTIVITY_ID_KEY) ?: intent.extras?.getInt(ACTIVITY_ID_KEY) ?: hashCode()
+        id =
+            savedInstanceState?.getInt(ACTIVITY_ID_KEY)
+                ?: intent.extras?.getInt(ACTIVITY_ID_KEY)
+                ?: hashCode()
         Rust.onActivityCreate(this)
         ProcessLifecycleOwner.get().lifecycle.addObserver(WryLifecycleObserver)
     }
@@ -146,7 +148,14 @@ abstract class WryActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Rust.onActivityDestroy(this)
-        Rust.onWebviewDestroy(this, if (::mWebView.isInitialized) { mWebView.id } else { "" })
+        Rust.onWebviewDestroy(
+            this,
+            if (::mWebView.isInitialized) {
+                mWebView.id
+            } else {
+                ""
+            },
+        )
     }
 
     override fun onLowMemory() {
@@ -170,6 +179,4 @@ abstract class WryActivity : AppCompatActivity() {
         startActivity(intent)
         return id
     }
-
-    
 }
